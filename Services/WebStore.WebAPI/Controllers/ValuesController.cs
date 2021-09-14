@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebStore.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] // api/values
     public class ValuesController : ControllerBase
     {
         private static List<string> __Values = Enumerable
