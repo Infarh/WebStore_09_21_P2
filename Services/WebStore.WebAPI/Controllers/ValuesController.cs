@@ -13,6 +13,11 @@ namespace WebStore.WebAPI.Controllers
            .Select(i => $"Value-{i}")
            .ToList();
 
+        public ValuesController()
+        {
+            
+        }
+
         [HttpGet]
         public IActionResult Get() => Ok(__Values);
 
