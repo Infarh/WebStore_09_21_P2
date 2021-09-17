@@ -97,8 +97,11 @@ namespace WebStore
             //    services.AddSingleton<IProductData, InMemoryProductData>();
             services.AddScoped<IOrderService, SqlOrderService>();
 
-            services.AddHttpClient<IValuesService, ValuesClient>(client => client.BaseAddress = new Uri(Configuration["WebAPI"]));
-            services.AddHttpClient<IEmployeesData, EmployeesClient>(client => client.BaseAddress = new Uri(Configuration["WebAPI"]));
+            services.AddHttpClient("WebStoreAPI", client => client.BaseAddress = new Uri(Configuration["WebAPI"]))
+               .AddTypedClient<IValuesService, ValuesClient>()
+               .AddTypedClient<IEmployeesData, EmployeesClient>()
+                ;
+
 
             services.AddControllersWithViews(/*opt => opt.Conventions.Add(new TestControllersConvention())*/)
                .AddRazorRuntimeCompilation();
