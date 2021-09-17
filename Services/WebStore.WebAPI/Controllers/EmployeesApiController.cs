@@ -32,7 +32,7 @@ namespace WebStore.WebAPI.Controllers
         public IActionResult Add(Employee employee)
         {
             var id = _EmployeesData.Add(employee);
-            return Ok(new { id }); //CreatedAtAction(nameof(GetById), new { id });
+            return Ok(id); //CreatedAtAction(nameof(GetById), new { id });
         }
 
         [HttpPut]

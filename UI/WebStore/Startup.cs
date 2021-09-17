@@ -11,15 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using WebStore.DAL.Context;
-using WebStore.Data;
 using WebStore.Domain.Entities.Identity;
 using WebStore.Infrastructure.Conventions;
 using WebStore.Infrastructure.MiddleWare;
-using WebStore.Services.InCookies;
-using WebStore.Services.InMemory;
-using WebStore.Services.InSQL;
 using WebStore.Interfaces.Services;
 using WebStore.Interfaces.TestAPI;
+using WebStore.Services.Data;
+using WebStore.Services.Services.InCookies;
+using WebStore.Services.Services.InSQL;
 using WebStore.WebAPI.Clients.Employees;
 using WebStore.WebAPI.Clients.Values;
 
@@ -91,10 +90,7 @@ namespace WebStore
 
             services.AddScoped<IEmployeesData, SqlEmployeesData>();
             services.AddScoped<ICartService, InCookiesCartService>();
-            //if (Configuration["ProductsDataSource"] == "db")
-            //    services.AddScoped<IProductData, SqlProductData>();
-            //else
-            //    services.AddSingleton<IProductData, InMemoryProductData>();
+            services.AddScoped<IProductData, SqlProductData>();
             services.AddScoped<IOrderService, SqlOrderService>();
 
             services.AddHttpClient("WebStoreAPI", client => client.BaseAddress = new Uri(Configuration["WebAPI"]))
