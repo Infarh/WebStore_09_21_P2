@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 using WebStore.DAL.Context;
@@ -38,8 +33,7 @@ namespace WebStore.WebAPI
                 case "MSSQL":
                     services.AddDbContext<WebStoreDB>(opt =>
                         opt.UseSqlServer(
-                            Configuration.GetConnectionString("MSSQL")//,
-                            /*o => o.MigrationsAssembly("WebStore.DAL.SqlServer")*/));
+                            Configuration.GetConnectionString("MSSQL")));
                     break;
                 case "Sqlite":
                     services.AddDbContext<WebStoreDB>(opt =>
@@ -51,7 +45,7 @@ namespace WebStore.WebAPI
 
             services.AddTransient<WebStoreDBInitializer>();
 
-            services.AddIdentity<User, Role>(/*opt => { }*/)
+            services.AddIdentity<User, Role>()
                .AddEntityFrameworkStores<WebStoreDB>()
                .AddDefaultTokenProviders();
 
@@ -83,6 +77,21 @@ namespace WebStore.WebAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebStore.WebAPI", Version = "v1" });
+
+                const string webstore_api_xml = "WebStore.WebAPI.xml";
+                const string webstore_domain_xml = "WebStore.Domain.xml";
+                const string debug_path = "bin/debug/net5.0";
+
+                //c.IncludeXmlComments("WebStore.WebAPI.xml");
+                if(File.Exists(webstore_api_xml))
+                    c.IncludeXmlComments(webstore_api_xml);
+                else if(File.Exists(Path.Combine(debug_path, webstore_api_xml)))
+                    c.IncludeXmlComments(Path.Combine(debug_path, webstore_api_xml));
+
+                if (File.Exists(webstore_domain_xml))
+                    c.IncludeXmlComments(webstore_domain_xml);
+                else if (File.Exists(Path.Combine(debug_path, webstore_domain_xml)))
+                    c.IncludeXmlComments(Path.Combine(debug_path, webstore_domain_xml));
             });
         }
 
