@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /UI/WebStore/wwwroot/css/site.min.css
 /UI/WebStore/wwwroot/css/site.css
 /UI/WebStore/wwwroot/lib
+/Services/WebStore.WebAPI/WebStore.WebAPI.xml
