@@ -1,17 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 using WebStore.DAL.Context;
@@ -38,8 +32,7 @@ namespace WebStore.WebAPI
                 case "MSSQL":
                     services.AddDbContext<WebStoreDB>(opt =>
                         opt.UseSqlServer(
-                            Configuration.GetConnectionString("MSSQL")//,
-                            /*o => o.MigrationsAssembly("WebStore.DAL.SqlServer")*/));
+                            Configuration.GetConnectionString("MSSQL")));
                     break;
                 case "Sqlite":
                     services.AddDbContext<WebStoreDB>(opt =>
@@ -51,7 +44,7 @@ namespace WebStore.WebAPI
 
             services.AddTransient<WebStoreDBInitializer>();
 
-            services.AddIdentity<User, Role>(/*opt => { }*/)
+            services.AddIdentity<User, Role>()
                .AddEntityFrameworkStores<WebStoreDB>()
                .AddDefaultTokenProviders();
 

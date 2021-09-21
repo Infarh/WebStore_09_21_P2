@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebStore.DAL.Migrations;
 using WebStore.Domain.ViewModels;
 using WebStore.Interfaces.Services;
 
