@@ -30,27 +30,7 @@ namespace WebStore
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var database_name = Configuration["Database"];
-
-            switch (database_name)
-            {
-                case "MSSQL":
-                    services.AddDbContext<WebStoreDB>(opt =>
-                        opt.UseSqlServer(
-                            Configuration.GetConnectionString("MSSQL")));
-                    break;
-                case "Sqlite":
-                    services.AddDbContext<WebStoreDB>(opt => 
-                        opt.UseSqlite(
-                            Configuration.GetConnectionString("Sqlite"), 
-                            o => o.MigrationsAssembly("WebStore.DAL.Sqlite")));
-                    break;
-            }
-
-            services.AddTransient<WebStoreDBInitializer>();
-
             services.AddIdentity<User, Role>()
-               //.AddEntityFrameworkStores<WebStoreDB>()
                .AddDefaultTokenProviders();
 
             services.AddHttpClient("WebStoreAPIIdentity", client => client.BaseAddress = new(Configuration["WebAPI"]))
@@ -109,11 +89,8 @@ namespace WebStore
                .AddRazorRuntimeCompilation();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            using (var scope = services.CreateScope())
-                scope.ServiceProvider.GetRequiredService<WebStoreDBInitializer>().Initialize();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
