@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebStore.Domain.Entities;
@@ -85,14 +86,26 @@ namespace WebStore.Controllers
                 Age = Model.Age,
             };
 
-            if (employee.Id == 0)
-                _EmployeesData.Add(employee);
-            else
-                _EmployeesData.Update(employee);
+            try
+            {
+                if (employee.Id == 0)
+                {
+                    _EmployeesData.Add(employee);
+                    _Logger.LogInformation("Создание нового сотрудника id:{0} завершено", Model.Id);
+                }
+                else
+                {
+                    _EmployeesData.Update(employee);
+                    _Logger.LogInformation("Редактирование сотрудника id:{0} завершено", Model.Id);
+                }
 
-            _Logger.LogInformation("Редактирование сотрудника id:{0} завершено", Model.Id);
-
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch (Exception error)
+            {
+                _Logger.LogError(error, "Ошибка при редактировании сотрудника {0}", Model.Id);
+                throw;
+            }
         }
 
         [Authorize(Roles = Role.Administrators)]
