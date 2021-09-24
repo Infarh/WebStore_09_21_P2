@@ -19,7 +19,7 @@ namespace WebStore.Controllers
         public AccountController(
             UserManager<User> UserManager,
             SignInManager<User> SignInManager,
-            ILogger<AccountController> Logger)
+            ILogger<AccountController> Logger) //WebStore.Controllers.AccountController
         {
             _UserManager = UserManager;
             _SignInManager = SignInManager;
@@ -39,38 +39,41 @@ namespace WebStore.Controllers
 
             _Logger.LogInformation("Регистрация нового пользователя {0}", Model.UserName);
 
-            var user = new User
+            using (_Logger.BeginScope("Регистрация пользователя {0}", Model.UserName))
             {
-                UserName = Model.UserName
-            };
+                var user = new User
+                {
+                    UserName = Model.UserName
+                };
 
-            var register_result = await _UserManager.CreateAsync(user, Model.Password);
-            if (register_result.Succeeded)
-            {
-                _Logger.LogInformation("Пользователь {0} успешно зарегистрирован", user.UserName);
+                var register_result = await _UserManager.CreateAsync(user, Model.Password);
+                if (register_result.Succeeded)
+                {
+                    _Logger.LogInformation("Пользователь {0} успешно зарегистрирован", user.UserName);
 
-                await _UserManager.AddToRoleAsync(user, Role.Users);
+                    await _UserManager.AddToRoleAsync(user, Role.Users);
 
-                _Logger.LogInformation("Пользователю {0} назначена роль {1}", 
-                    user.UserName, Role.Users);
+                    _Logger.LogInformation("Пользователю {0} назначена роль {1}",
+                        user.UserName, Role.Users);
 
-                //await _UserManager.RemoveFromRoleAsync(user, Role.Administrators);
+                    //await _UserManager.RemoveFromRoleAsync(user, Role.Administrators);
 
-                await _SignInManager.SignInAsync(user, false);
+                    await _SignInManager.SignInAsync(user, false);
 
-                _Logger.LogInformation("Пользователь {0} автоматически вошёл в систему после регистрации", user.UserName);
+                    _Logger.LogInformation("Пользователь {0} автоматически вошёл в систему после регистрации", user.UserName);
 
-                return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");
+                }
+
+                foreach (var error in register_result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                _Logger.LogWarning("Ошибка при регистрации пользователя {0} в систему: {1}",
+                    Model.UserName,
+                    string.Join(", ", register_result.Errors.Select(err => err.Description)));
+
+                return View(Model);
             }
-
-            foreach (var error in register_result.Errors)
-                ModelState.AddModelError("", error.Description);
-
-            _Logger.LogWarning("Ошибка при регистрации пользователя {0} в систему: {1}",
-                Model.UserName,
-                string.Join(", ", register_result.Errors.Select(err => err.Description)));
-
-            return View(Model);
         } 
 
         #endregion
@@ -98,6 +101,9 @@ namespace WebStore.Controllers
             
             if (login_result.Succeeded)
             {
+                //_Logger.LogInformation($"Успешный вход в систему {Model.UserName}"); // так делать не надо!
+                _Logger.LogInformation("Успешный вход в систему {0}", Model.UserName);
+
                 //return Redirect(Model.ReturnUrl); // не безопасно!
                 //if (Url.IsLocalUrl(Model.ReturnUrl))
                 //    return Redirect(Model.ReturnUrl);
@@ -106,6 +112,8 @@ namespace WebStore.Controllers
                 return LocalRedirect(Model.ReturnUrl ?? "/");
             }
 
+            _Logger.LogWarning("Ошибка ввода пользователя, или пароля {0}", Model.UserName);
+
             ModelState.AddModelError("", "Ошибка в имени пользователя, либо в пароле");
 
             return View(Model);
@@ -113,11 +121,23 @@ namespace WebStore.Controllers
 
         public async Task<IActionResult> Logout()
         {
+            var user_name = User.Identity!.Name;
+
             await _SignInManager.SignOutAsync();
+            _Logger.LogInformation("Пользователь {0} успешно вышел из системы", user_name);
+
             return RedirectToAction("Index", "Home");
         }
 
         [AllowAnonymous]
-        public IActionResult AccessDenied() => View();
+        public IActionResult AccessDenied()
+        {
+            var user_name = User.Identity!.IsAuthenticated ? User.Identity.Name : "anonymous";
+
+            _Logger.LogWarning("В доступе отказано пользователю {0} по пути {1}",
+                user_name, ControllerContext.HttpContext.Request.Path);
+
+            return View();
+        }
     }
 }
