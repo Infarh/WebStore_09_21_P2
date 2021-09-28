@@ -6,6 +6,7 @@ using WebStore.Domain;
 using WebStore.Domain.Entities;
 using WebStore.Domain.ViewModels;
 using WebStore.Interfaces.Services;
+using WebStore.Services.Services;
 using Assert = Xunit.Assert;
 
 namespace WebStore.Services.Tests.Services
@@ -16,6 +17,9 @@ namespace WebStore.Services.Tests.Services
         private Cart _Cart;
 
         private Mock<IProductData> _ProductDataMock;
+        private Mock<ICartStore> _CartStoreMock;
+
+        private ICartService _CartService;
 
         [TestInitialize]
         public void Initialize()
@@ -68,6 +72,11 @@ namespace WebStore.Services.Tests.Services
                         Section = new Section{ Id = 3, Name = "Section 3", Order = 3 },
                     },
                 });
+
+            _CartStoreMock = new Mock<ICartStore>();
+            _CartStoreMock.Setup(c => c.Cart).Returns(_Cart);
+
+            _CartService = new CartService(_CartStoreMock.Object, _ProductDataMock.Object);
         }
 
         [TestMethod]
@@ -119,5 +128,7 @@ namespace WebStore.Services.Tests.Services
 
             Assert.Equal(expected_total_price, actual_total_price);
         }
+
+
     }
 }
