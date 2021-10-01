@@ -68,6 +68,7 @@ namespace WebStore.Domain.DTO
                 Id = section.Id,
                 Name = section.Name,
                 Order = section.Order,
+                ParentId = section.ParentId,
             };
 
         public static Section FromDTO(this SectionDTO section) => section is null
@@ -77,6 +78,7 @@ namespace WebStore.Domain.DTO
                 Id = section.Id,
                 Name = section.Name,
                 Order = section.Order,
+                ParentId = section.ParentId,
             };
 
         public static IEnumerable<SectionDTO> ToDTO(this IEnumerable<Section> sections) => sections.Select(ToDTO);
