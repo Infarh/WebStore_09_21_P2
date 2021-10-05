@@ -68,7 +68,7 @@
             .fail(function () { console.log("incrementItem fail"); });
     },
 
-    refreshPrice: function(tr) {
+    refreshPrice: function (tr) {
         const count = parseInt($(".cart_quantity_input", tr).val());
         const price = parseFloat($(".cart_price", tr).data("price"));
 
@@ -83,10 +83,10 @@
         Cart.refreshTotalPrice();
     },
 
-    refreshTotalPrice: function() {
+    refreshTotalPrice: function () {
         var totalPrice = 0;
 
-        $(".cart_total_price").each(function() {
+        $(".cart_total_price").each(function () {
             const price = parseFloat($(this).data("price"));
             totalPrice += price;
         });
@@ -100,11 +100,19 @@
 
         var button = $(this);
         const id = button.data("id");
+        var tr = button.closest("tr");
 
         $.get(Cart._properties.decrementLink + "/" + id)
             .done(function () {
-                //Cart.showToolTip(button);
-                //Cart.refreshCartView();
+                const count = parseInt($(".cart_quantity_input", tr).val());
+                if (count > 1) {
+                    $(".cart_quantity_input", tr).val(count - 1);
+                    Cart.refreshPrice(tr);
+                } else {
+                    tr.remove();
+                    Cart.refreshTotalPrice();
+                }
+                Cart.refreshCartView();
             })
             .fail(function () { console.log("decrementItem fail"); });
     },
@@ -117,8 +125,9 @@
 
         $.get(Cart._properties.removeFromCartLink + "/" + id)
             .done(function () {
-                //Cart.showToolTip(button);
-                //Cart.refreshCartView();
+                button.closest("tr").remove();
+                Cart.refreshTotalPrice();
+                Cart.refreshCartView();
             })
             .fail(function () { console.log("removeItem fail"); });
     }
