@@ -37,7 +37,7 @@ namespace WebStore.Tests.Controllers
 
             product_data_mock
                .Setup(c => c.GetProducts(It.IsAny<ProductFilter>()))
-               .Returns(Enumerable.Empty<Product>());
+               .Returns(new ProductsPage(Enumerable.Empty<Product>(), 0));
 
             var controller = new HomeController(configuration_mock.Object);
 
