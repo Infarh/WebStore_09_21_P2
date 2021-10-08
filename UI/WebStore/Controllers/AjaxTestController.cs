@@ -9,9 +9,9 @@ namespace WebStore.Controllers
 {
     public class AjaxTestController : Controller
     {
-        private readonly Logger<AjaxTestController> _Logger;
+        private readonly ILogger<AjaxTestController> _Logger;
 
-        public AjaxTestController(Logger<AjaxTestController> Logger) => _Logger = Logger;
+        public AjaxTestController(ILogger<AjaxTestController> Logger) => _Logger = Logger;
 
         public IActionResult Index() => View();
 
