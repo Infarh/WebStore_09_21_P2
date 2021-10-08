@@ -23,9 +23,11 @@
 
             let query = "";
 
+            const data = button.data();
+
             for (let key in data)
                 if (data.hasOwnProperty(key))
-                    query += `${key}=${data}&`;
+                    query += `${key}=${data[key]}&`;
 
             $.get(Catalog._properties.getViewLink + "?" + query)
                 .done(catalogHtml => {
