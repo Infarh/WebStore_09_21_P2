@@ -3,17 +3,15 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using WebStore.DAL.Context;
 using WebStore.Domain.Entities.Identity;
+using WebStore.Hubs;
 using WebStore.Interfaces.Services;
 using WebStore.Interfaces.TestAPI;
 using WebStore.Logger;
-using WebStore.Services.Data;
 using WebStore.Services.Services;
 using WebStore.Services.Services.InCookies;
 using WebStore.WebAPI.Clients.Employees;
@@ -93,6 +91,8 @@ namespace WebStore
 
             services.AddControllersWithViews()
                .AddRazorRuntimeCompilation();
+
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory log)
@@ -113,6 +113,8 @@ namespace WebStore
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<ChatHub>("/chat");
+
                 endpoints.MapControllerRoute(
                     name: "areas",
                     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
