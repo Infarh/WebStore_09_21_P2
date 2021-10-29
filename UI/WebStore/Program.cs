@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Console;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using WebStore.Logger;
 
 namespace WebStore
 {
@@ -24,6 +25,7 @@ namespace WebStore
                    //    .AddEventLog()
                    //    .AddFilter<ConsoleLoggerProvider>("Microsoft", LogLevel.Warning))
                 )
+               .ConfigureLogging(log => log.AddLog4Net())
                .UseSerilog((host, log) => log.ReadFrom.Configuration(host.Configuration)
                    .MinimumLevel.Debug()
                    .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
