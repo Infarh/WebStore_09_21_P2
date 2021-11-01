@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Net.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
 using WebStore.Domain.Entities.Identity;
 
 namespace WebStore.WebAPI.Clients.Identity
@@ -18,10 +22,30 @@ namespace WebStore.WebAPI.Clients.Identity
                .AddTypedClient<IUserTwoFactorStore<User>, UsersClient>()
                .AddTypedClient<IUserClaimStore<User>, UsersClient>()
                .AddTypedClient<IUserLoginStore<User>, UsersClient>()
-               .AddTypedClient<IRoleStore<Role>, RolesClient>();
+               .AddTypedClient<IRoleStore<Role>, RolesClient>()
+               .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+               .AddPolicyHandler(GetRetryPolicy())
+               .AddPolicyHandler(GetCircuitBreakerPolicy());
 
             return services;
         }
+
+        private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int RetryMaxCount = 6, int MaxJitter = 1000)
+        {
+            var jitterer = new Random();
+            return HttpPolicyExtensions
+               .HandleTransientHttpError()
+                //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+               .WaitAndRetryAsync(RetryMaxCount, RetryAttempt =>
+                    TimeSpan.FromSeconds(Math.Pow(2, RetryAttempt)) +
+                    TimeSpan.FromMilliseconds(jitterer.Next(0, MaxJitter))
+                );
+        }
+
+        private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy() =>
+            HttpPolicyExtensions
+               .HandleTransientHttpError()
+               .CircuitBreakerAsync(handledEventsAllowedBeforeBreaking: 5, TimeSpan.FromSeconds(30));
 
         public static IdentityBuilder AddIdentityWebStoreWebAPIClients(this IdentityBuilder builder)
         {

@@ -22,13 +22,12 @@ namespace WebStore.Tests.Controllers
     [TestClass]
     public class WebAPIControllerIntegrativeTests
     {
-        private string[] _ExpectedValues = Enumerable.Range(1, 10).Select(i => $"Value - {i}").ToArray();
+        private readonly string[] _ExpectedValues = Enumerable.Range(1, 10).Select(i => $"Value - {i}").ToArray();
         private WebApplicationFactory<Startup> _Host;
 
         [TestInitialize]
         public void Inititlize()
         {
-
             var value_service_mock = new Mock<IValuesService>();
             value_service_mock.Setup(c => c.GetAll()).Returns(_ExpectedValues);
 
@@ -39,12 +38,11 @@ namespace WebStore.Tests.Controllers
 
             _Host = new WebApplicationFactory<Startup>()
                .WithWebHostBuilder(host => host
-               .ConfigureServices(services =>
-                {
-                    services.AddSingleton(value_service_mock.Object);
-                    services.AddSingleton(products_service_mock.Object);
-                })
-            );
+                   .ConfigureServices(services => services
+                       .AddSingleton(value_service_mock.Object)
+                       .AddSingleton(products_service_mock.Object)
+                    )
+                );
         }
 
         [TestMethod]
